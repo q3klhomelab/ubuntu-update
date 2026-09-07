@@ -17,10 +17,11 @@ logging.basicConfig(
 )
 
 #Load variables
-load_dotenv(dotenv_path="/usr/local/sbin/.sys_update_py.env")
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.realpath(__file__)), ".sys_update_py.env"))
 bot_tkn = os.getenv("BOT_TOKEN")
 chat_id = os.getenv("CHAT_ID")
 server_name = os.getenv("SERVER_NAME")
+server_os = os.getenv("SERVER_OS")
 
 #Build the function to send telegram messages
 def telegram_msg(token, chat_id, message):
@@ -39,20 +40,25 @@ def cmd_execute(cmd):
 
 def main():
 
-# Ubuntu/Debian udate commands
-    commands = [
-        {"name": "update_index",    "role": "critical", "stop_on_fail": True,  "command": ["apt", "update"]},
-        {"name": "list_upgradable", "role": "report",   "stop_on_fail": False, "command": ["apt", "list", "--upgradable"]},
-        {"name": "upgrade",         "role": "critical", "stop_on_fail": True,  "command": ["apt", "upgrade", "-y"]},  #--dry-run
-        {"name": "cleanup",         "role": "cleanup",  "stop_on_fail": False, "command": ["apt", "autoremove", "--purge", "-y"]}
-        ]
-# Fedora update commands
-#     commands = [
-#         {"name": "update_index",    "role": "critical", "stop_on_fail": True,  "command": ["dnf", "makecache"]},
-#         {"name": "list_upgradable", "role": "report",   "stop_on_fail": False, "command": ["dnf", "list", "upgrades"]},
-#         {"name": "upgrade",         "role": "critical", "stop_on_fail": True,  "command": ["dnf", "upgrade", "-y"]},  # --assumeno
-#         {"name": "cleanup",         "role": "cleanup",  "stop_on_fail": False, "command": ["dnf", "autoremove", "-y"]}
-# ]
+    if server_os=="Ubuntu":
+        # Ubuntu update commands
+        commands = [
+            {"name": "update_index",    "role": "critical", "stop_on_fail": True,  "command": ["apt", "update"]},
+            {"name": "list_upgradable", "role": "report",   "stop_on_fail": False, "command": ["apt", "list", "--upgradable"]},
+            {"name": "upgrade",         "role": "critical", "stop_on_fail": True,  "command": ["apt", "upgrade", "-y"]},  #--dry-run
+            {"name": "cleanup",         "role": "cleanup",  "stop_on_fail": False, "command": ["apt", "autoremove", "--purge", "-y"]}
+            ]
+    elif server_os=="Fedora":
+        # Fedora update commands
+        commands = [
+            {"name": "update_index",    "role": "critical", "stop_on_fail": True,  "command": ["dnf", "makecache"]},
+            {"name": "list_upgradable", "role": "report",   "stop_on_fail": False, "command": ["dnf", "list", "upgrades"]},
+            {"name": "upgrade",         "role": "critical", "stop_on_fail": True,  "command": ["dnf", "upgrade", "-y"]},  # --assumeno
+            {"name": "cleanup",         "role": "cleanup",  "stop_on_fail": False, "command": ["dnf", "autoremove", "-y"]}
+            ]
+    else:
+        logging.error("Unknown Operatig System")
+        return
     
 
     for cmd in commands:
@@ -69,7 +75,14 @@ def main():
                 telegram_msg(bot_tkn, chat_id, server_name+" "+message)
         else:
             if cmd["role"] == "report":
-                packages = [app.split('/')[0] for app in output.splitlines() if "upgradable" in app]
+
+                #BIG PROBLEM HERE WITH FEDORA:
+                if server_os=="Ubuntu":
+                    packages = [app.split('/')[0] for app in output.splitlines() if "upgradable" in app]
+                elif server_os=="Fedora":
+                    first_line_element = [line.split()[0] for line in output.splitlines()]
+                    packages = []
+
                 if not packages:
                     message = "No packages to upgrade"
                     logging.info(message)
