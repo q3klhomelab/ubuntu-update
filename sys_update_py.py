@@ -38,13 +38,21 @@ def cmd_execute(cmd):
 
 
 def main():
-   
+
+# Ubuntu/Debian udate commands
     commands = [
         {"name": "update_index",    "role": "critical", "stop_on_fail": True,  "command": ["apt", "update"]},
         {"name": "list_upgradable", "role": "report",   "stop_on_fail": False, "command": ["apt", "list", "--upgradable"]},
-        {"name": "upgrade",         "role": "critical", "stop_on_fail": True,  "command": ["apt", "upgrade", "-y"]},
+        {"name": "upgrade",         "role": "critical", "stop_on_fail": True,  "command": ["apt", "upgrade", "-y"]},  #--dry-run
         {"name": "cleanup",         "role": "cleanup",  "stop_on_fail": False, "command": ["apt", "autoremove", "--purge", "-y"]}
         ]
+# Fedora update commands
+#     commands = [
+#         {"name": "update_index",    "role": "critical", "stop_on_fail": True,  "command": ["dnf", "makecache"]},
+#         {"name": "list_upgradable", "role": "report",   "stop_on_fail": False, "command": ["dnf", "list", "upgrades"]},
+#         {"name": "upgrade",         "role": "critical", "stop_on_fail": True,  "command": ["dnf", "upgrade", "-y"]},  # --assumeno
+#         {"name": "cleanup",         "role": "cleanup",  "stop_on_fail": False, "command": ["dnf", "autoremove", "-y"]}
+# ]
     
 
     for cmd in commands:
