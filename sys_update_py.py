@@ -132,14 +132,3 @@ def main():
         
 if __name__ == "__main__":
     main()
-
-
-"""
-The script location: /usr/local/sbin/sys_update_py.py
-Make it executable: chmod +x /usr/local/sbin/sys_update_py.py
-Crontab: sudo crontab -e and add: 0 22 * * * /usr/bin/python3 /usr/local/sbin/sys_update_py.py
-The .env file location: /usr/local/sbin/
-
-test: sudo /usr/bin/python3 /usr/local/sbin/sys_update_py.py
-
-"""
