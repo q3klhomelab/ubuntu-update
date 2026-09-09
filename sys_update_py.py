@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import subprocess
-from datetime import datetime
 import time
 import requests
 from dotenv import load_dotenv
@@ -9,6 +8,16 @@ import os
 
 import logging
 from logging.handlers import RotatingFileHandler
+
+#Load variables
+env_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".sys_update_py.env")
+if os.path.exists(env_file):
+    load_dotenv(dotenv_path=env_file)
+    
+bot_tkn = os.getenv("BOT_TOKEN")
+chat_id = os.getenv("CHAT_ID")
+server_name = os.getenv("SERVER_NAME")
+server_os = os.getenv("SERVER_OS")
 
 #Set logger
 log_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "log_dir")
@@ -36,16 +45,6 @@ console_handler.setFormatter(formater)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
-#Load variables
-env_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".sys_update_py.env")
-if os.path.exists(env_file):
-    load_dotenv(dotenv_path=env_file)
-    
-bot_tkn = os.getenv("BOT_TOKEN")
-chat_id = os.getenv("CHAT_ID")
-server_name = os.getenv("SERVER_NAME")
-server_os = os.getenv("SERVER_OS")
-
 #Build the function to send telegram messages
 def telegram_msg(token, chat_id, message):
     url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
@@ -56,11 +55,9 @@ def cmd_execute(cmd):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     output, error = process.communicate()
     all_ok = True
-    if process.returncode != 0:
+    if process.returncode not in [0, 100]:      #dnf return code 100 for success
         all_ok = False
     return all_ok, output, error
-
-
 
 def main():
 
