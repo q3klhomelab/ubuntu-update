@@ -9,16 +9,6 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 
-#Load variables
-env_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".sys_update_py.env")
-if os.path.exists(env_file):
-    load_dotenv(dotenv_path=env_file)
-    
-bot_tkn = os.getenv("BOT_TOKEN")
-chat_id = os.getenv("CHAT_ID")
-server_name = os.getenv("SERVER_NAME")
-server_os = os.getenv("SERVER_OS")
-
 #Set logger
 log_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "log_dir")
 os.makedirs(log_dir, exist_ok=True)
@@ -131,4 +121,19 @@ def main():
 
         
 if __name__ == "__main__":
+
+    #Load variables
+    env_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".sys_update_py.env")
+    if not os.path.exists(env_file):
+        logger.critical(f"Configuration file '.sys_update_py.env' not found")
+        exit(1)
+
+    load_dotenv(dotenv_path=env_file)
+        
+    bot_tkn = os.getenv("BOT_TOKEN")
+    chat_id = os.getenv("CHAT_ID")
+    server_name = os.getenv("SERVER_NAME")
+    server_os = os.getenv("SERVER_OS")
+
+    #run the script logic
     main()
