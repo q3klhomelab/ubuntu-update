@@ -98,7 +98,8 @@ def main():
                     telegram_msg(bot_tkn, chat_id, server_name+" "+message)
                     break
                 else:
-                    message = f"Packages to upgrade:\n{'\n'.join(packages)}"
+                    packages_list = '\n'.join(packages)
+                    message = f"Packages to upgrade:\n{packages_list}"
                     logger.info(message)
             if cmd["role"] == "cleanup":
                 message = f"Cleanup: \n{output}"
